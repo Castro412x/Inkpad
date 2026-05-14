@@ -1,6 +1,6 @@
 // src/components/notepad.jsx
 import { useState, useEffect, useRef } from "react";
-import { ConfirmModal } from "./components/Modal";
+import { ConfirmModal } from "./Modal";
 
 const Notepad = ({ 
   initialContent = "", 
@@ -276,25 +276,25 @@ export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
   const activeNote = notes?.find(n => n.id === activeNoteId);
 
   return (
-    <div className="flex gap-6 min-h-[600px] flex-col md:flex-row">
+    <div className="flex gap-6 min-h-[600px]">
       {/* Sidebar with note list */}
-      <div className="md:w-64 bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
+      <div className="w-64 bg-white rounded-xl border border-gray-200 overflow-hidden">
+        <div className="p-4 border-b border-gray-200">
           <button
             onClick={onNoteAdd}
-            className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium"
           >
             + New Note
           </button>
         </div>
         
-        <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
+        <div className="divide-y divide-gray-100">
           {notes?.map((note) => (
             <div
               key={note.id}
               onClick={() => setActiveNoteId(note.id)}
               className={`p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
-                activeNoteId === note.id ? "bg-red-50 border-l-4 border-red-600" : ""
+                activeNoteId === note.id ? "bg-blue-50 border-l-4 border-blue-600" : ""
               }`}
             >
               <h3 className="font-medium text-gray-900 text-sm truncate">
