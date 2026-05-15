@@ -1,9 +1,7 @@
 import React from "react";
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
-
-import Button from "./components/Button";
-import Input from "./components/Input";
-import Loader from "./components/Loader";
+import Button from "../components/Button";
+import Input from "../components/Input";
+import Loader from "../components/Loader";
 
 function DashboardPage() {
   const [search, setSearch] = React.useState("");
@@ -40,39 +38,12 @@ function DashboardPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Navbar */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-primary">Inkpad</h1>
-
-            <p className="text-sm text-slate-500">Smart note management</p>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
-            <Input
-              placeholder="Search notes..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-72"
-            />
-
-            <Button>+ Add Note</Button>
-          </div>
-        </div>
-      </header>
 
       {/* Main Layout */}
       <div className="max-w-7xl mx-auto flex">
         {/* Sidebar */}
         <aside className="hidden md:flex flex-col w-64 min-h-[calc(100vh-80px)] bg-white border-r border-slate-200 p-6">
           <nav className="space-y-3">
-            <Link
-              to="/"
-              className="block px-4 py-3 rounded-xl bg-primary text-white font-medium"
-            >
-              All Notes
-            </Link>
-
             <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
               📌 Pinned
             </button>
@@ -195,90 +166,4 @@ function DashboardPage() {
   );
 }
 
-function LoginPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-lg border border-slate-200">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Welcome Back</h1>
-
-          <p className="text-slate-500 mt-2">Login to continue</p>
-        </div>
-
-        <form className="space-y-5">
-          <Input label="Email" type="email" placeholder="Enter your email" />
-
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Enter your password"
-          />
-
-          <Button fullWidth size="lg">
-            Login
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Don’t have an account?
-          <Link to="/register" className="text-primary font-medium ml-1">
-            Register
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function RegisterPage() {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-lg border border-slate-200">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">Create Account</h1>
-
-          <p className="text-slate-500 mt-2">Start organizing your notes</p>
-        </div>
-
-        <form className="space-y-5">
-          <Input label="Full Name" placeholder="Enter your full name" />
-
-          <Input label="Email" type="email" placeholder="Enter your email" />
-
-          <Input
-            label="Password"
-            type="password"
-            placeholder="Create password"
-          />
-
-          <Button fullWidth size="lg">
-            Register
-          </Button>
-        </form>
-
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Already have an account?
-          <Link to="/login" className="text-primary font-medium ml-1">
-            Login
-          </Link>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-
-        <Route path="/login" element={<LoginPage />} />
-
-        <Route path="/register" element={<RegisterPage />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;
+export default DashboardPage;
