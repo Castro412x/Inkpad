@@ -1,14 +1,14 @@
 // src/components/notepad.jsx
 import { useState, useEffect, useRef } from "react";
-import { ConfirmModal } from "./components/Modal";
+import { ConfirmModal } from "../components/Modal";
 
-const Notepad = ({ 
-  initialContent = "", 
-  onSave, 
+const NotePage = ({
+  initialContent = "",
+  onSave,
   onDelete,
   readOnly = false,
   placeholder = "Start writing your notes here...",
-  autoFocus = true 
+  autoFocus = true,
 }) => {
   const [content, setContent] = useState(initialContent);
   const [isEditing, setIsEditing] = useState(!readOnly);
@@ -40,7 +40,8 @@ const Notepad = ({
   useEffect(() => {
     if (textareaRef.current && isEditing) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
+      textareaRef.current.style.height =
+        textareaRef.current.scrollHeight + "px";
     }
   }, [content, isEditing]);
 
@@ -83,95 +84,149 @@ const Notepad = ({
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
                 const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `**${selectedText}**` + 
+                const newText =
+                  content.substring(0, start) +
+                  `**${selectedText}**` +
                   content.substring(end);
                 setContent(newText);
               }}
               className="p-1.5 hover:bg-gray-200 rounded transition-colors"
               title="Bold"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6zm0 0v16" strokeLinecap="round" strokeWidth="2"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6zm0 0v16"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
               </svg>
             </button>
-            
+
             <button
               onClick={() => {
                 const textarea = textareaRef.current;
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
                 const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `*${selectedText}*` + 
+                const newText =
+                  content.substring(0, start) +
+                  `*${selectedText}*` +
                   content.substring(end);
                 setContent(newText);
               }}
               className="p-1.5 hover:bg-gray-200 rounded transition-colors"
               title="Italic"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M10 4h6M14 20h-6M12 4l-2 16" strokeLinecap="round" strokeWidth="2"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M10 4h6M14 20h-6M12 4l-2 16"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
               </svg>
             </button>
-            
+
             <button
               onClick={() => {
                 const textarea = textareaRef.current;
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
                 const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `- ${selectedText}` + 
+                const newText =
+                  content.substring(0, start) +
+                  `- ${selectedText}` +
                   content.substring(end);
                 setContent(newText);
               }}
               className="p-1.5 hover:bg-gray-200 rounded transition-colors"
               title="Bullet List"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="6" cy="12" r="2" strokeLinecap="round" strokeWidth="2"/>
-                <path d="M12 12h8M12 8h8M12 16h8" strokeLinecap="round" strokeWidth="2"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  cx="6"
+                  cy="12"
+                  r="2"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
+                <path
+                  d="M12 12h8M12 8h8M12 16h8"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
               </svg>
             </button>
-            
+
             <button
               onClick={() => {
                 const textarea = textareaRef.current;
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
                 const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `1. ${selectedText}` + 
+                const newText =
+                  content.substring(0, start) +
+                  `1. ${selectedText}` +
                   content.substring(end);
                 setContent(newText);
               }}
               className="p-1.5 hover:bg-gray-200 rounded transition-colors"
               title="Numbered List"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M6 4v4M4 4h4M6 12h2M14 12h8M14 8h8M14 16h8" strokeLinecap="round" strokeWidth="2"/>
-                <path d="M8 8v8M8 16H6" strokeLinecap="round" strokeWidth="2"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M6 4v4M4 4h4M6 12h2M14 12h8M14 8h8M14 16h8"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
+                <path d="M8 8v8M8 16H6" strokeLinecap="round" strokeWidth="2" />
               </svg>
             </button>
 
             <div className="w-px h-6 bg-gray-300 mx-1" />
-            
+
             <button
               onClick={() => {
                 const textarea = textareaRef.current;
                 const start = textarea.selectionStart;
                 const end = textarea.selectionEnd;
-                const newText = content.substring(0, start) + 
-                  "\n" + 
-                  content.substring(end);
+                const newText =
+                  content.substring(0, start) + "\n" + content.substring(end);
                 setContent(newText);
               }}
               className="p-1.5 hover:bg-gray-200 rounded transition-colors"
               title="Insert Line Break"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M12 6v12m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeWidth="2"/>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  d="M12 6v12m0 0l-3-3m3 3l3-3"
+                  strokeLinecap="round"
+                  strokeWidth="2"
+                />
               </svg>
             </button>
           </div>
@@ -190,7 +245,7 @@ const Notepad = ({
               style={{ lineHeight: "1.6" }}
             />
           ) : (
-            <div 
+            <div
               className="prose prose-sm max-w-none min-h-[300px] whitespace-pre-wrap break-words text-gray-700 leading-relaxed cursor-text"
               onClick={handleEdit}
               style={{ lineHeight: "1.6" }}
@@ -207,11 +262,9 @@ const Notepad = ({
           <div className="flex gap-4">
             <span>{wordCount} words</span>
             <span>{charCount} characters</span>
-            {lastSaved && (
-              <span>Last saved: {formatDate(lastSaved)}</span>
-            )}
+            {lastSaved && <span>Last saved: {formatDate(lastSaved)}</span>}
           </div>
-          
+
           <div className="flex gap-2">
             {!readOnly && (
               <>
@@ -240,7 +293,7 @@ const Notepad = ({
                 )}
               </>
             )}
-            
+
             {onDelete && (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
@@ -273,7 +326,7 @@ const Notepad = ({
 // Multi-page Notepad (like a notebook with multiple pages)
 export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
   const [activeNoteId, setActiveNoteId] = useState(notes?.[0]?.id || null);
-  const activeNote = notes?.find(n => n.id === activeNoteId);
+  const activeNote = notes?.find((n) => n.id === activeNoteId);
 
   return (
     <div className="flex gap-6 min-h-[600px] flex-col md:flex-row">
@@ -287,14 +340,16 @@ export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
             + New Note
           </button>
         </div>
-        
+
         <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
           {notes?.map((note) => (
             <div
               key={note.id}
               onClick={() => setActiveNoteId(note.id)}
               className={`p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
-                activeNoteId === note.id ? "bg-red-50 border-l-4 border-red-600" : ""
+                activeNoteId === note.id
+                  ? "bg-red-50 border-l-4 border-red-600"
+                  : ""
               }`}
             >
               <h3 className="font-medium text-gray-900 text-sm truncate">
@@ -304,11 +359,13 @@ export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
                 {note.content?.substring(0, 50) || "Empty note"}
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                {new Date(note.updatedAt || note.createdAt).toLocaleDateString()}
+                {new Date(
+                  note.updatedAt || note.createdAt,
+                ).toLocaleDateString()}
               </p>
             </div>
           ))}
-          
+
           {(!notes || notes.length === 0) && (
             <div className="p-4 text-center text-gray-400 text-sm">
               No notes yet. Click "New Note" to get started.
@@ -328,10 +385,21 @@ export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
           />
         ) : (
           <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeWidth="2"/>
+            <svg
+              className="w-16 h-16 mx-auto text-gray-300 mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                strokeLinecap="round"
+                strokeWidth="2"
+              />
             </svg>
-            <p className="text-gray-500">Select a note to edit or create a new one</p>
+            <p className="text-gray-500">
+              Select a note to edit or create a new one
+            </p>
           </div>
         )}
       </div>
@@ -339,4 +407,4 @@ export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
   );
 };
 
-export default Notepad;
+export default NotePage;
