@@ -1,10 +1,4 @@
-import React from "react";
-
-function Loader({
-  size = "md",
-  text = "Loading...",
-  fullScreen = false,
-}) {
+function Loader({ size = "md", text = "Loading...", fullScreen = false }) {
   const sizes = {
     sm: "w-5 h-5 border-2",
     md: "w-10 h-10 border-4",
@@ -23,11 +17,7 @@ function Loader({
         `}
       />
 
-      {text && (
-        <p className="text-sm text-slate-500 font-medium">
-          {text}
-        </p>
-      )}
+      {text && <p className="text-sm text-slate-500 font-medium">{text}</p>}
     </div>
   );
 

@@ -1,342 +1,284 @@
-// src/components/notepad.jsx
-import { useState, useEffect, useRef } from "react";
-import { ConfirmModal } from "./components/Modal";
+import React from "react";
+import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
 
-const Notepad = ({ 
-  initialContent = "", 
-  onSave, 
-  onDelete,
-  readOnly = false,
-  placeholder = "Start writing your notes here...",
-  autoFocus = true 
-}) => {
-  const [content, setContent] = useState(initialContent);
-  const [isEditing, setIsEditing] = useState(!readOnly);
-  const [wordCount, setWordCount] = useState(0);
-  const [charCount, setCharCount] = useState(0);
-  const [lastSaved, setLastSaved] = useState(null);
-  const textareaRef = useRef(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+import Button from "./components/Button";
+import Input from "./components/Input";
+import Loader from "./components/Loader";
 
-  // Calculate word and character count
-  useEffect(() => {
-    const words = content.trim() ? content.trim().split(/\s+/).length : 0;
-    setWordCount(words);
-    setCharCount(content.length);
-  }, [content]);
+function DashboardPage() {
+  const [search, setSearch] = React.useState("");
 
-  // Auto-save functionality
-  useEffect(() => {
-    if (!isEditing && content !== initialContent && onSave) {
-      const timer = setTimeout(() => {
-        onSave(content);
-        setLastSaved(new Date());
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [content, isEditing, initialContent, onSave]);
+  const notes = [
+    {
+      id: 1,
+      title: "Sprint Planning",
+      content:
+        "Discussed frontend tasks, API integration, and deployment strategy.",
+      tags: ["Work", "Team"],
+      pinned: true,
+    },
 
-  // Auto-resize textarea
-  useEffect(() => {
-    if (textareaRef.current && isEditing) {
-      textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = textareaRef.current.scrollHeight + "px";
-    }
-  }, [content, isEditing]);
+    {
+      id: 2,
+      title: "React Ideas",
+      content:
+        "Need to improve reusable components and optimize folder structure.",
+      tags: ["React", "Frontend"],
+      pinned: false,
+    },
 
-  const handleSave = () => {
-    if (onSave) {
-      onSave(content);
-      setLastSaved(new Date());
-    }
-    setIsEditing(false);
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
-    setTimeout(() => {
-      if (textareaRef.current) {
-        textareaRef.current.focus();
-      }
-    }, 100);
-  };
-
-  const handleCancel = () => {
-    setContent(initialContent);
-    setIsEditing(false);
-  };
-
-  const formatDate = (date) => {
-    if (!date) return "";
-    return new Date(date).toLocaleString();
-  };
+    {
+      id: 3,
+      title: "Meeting Notes",
+      content:
+        "Prepare presentation slides and complete UI responsiveness testing.",
+      tags: ["Project"],
+      pinned: false,
+    },
+  ];
 
   return (
-    <>
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-        {/* Toolbar */}
-        {isEditing && (
-          <div className="border-b border-gray-200 bg-gray-50 p-2 flex flex-wrap gap-1">
-            <button
-              onClick={() => {
-                const textarea = textareaRef.current;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `**${selectedText}**` + 
-                  content.substring(end);
-                setContent(newText);
-              }}
-              className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-              title="Bold"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M6 4h8a4 4 0 014 4 4 4 0 01-4 4H6zm0 0v16" strokeLinecap="round" strokeWidth="2"/>
-              </svg>
-            </button>
-            
-            <button
-              onClick={() => {
-                const textarea = textareaRef.current;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `*${selectedText}*` + 
-                  content.substring(end);
-                setContent(newText);
-              }}
-              className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-              title="Italic"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M10 4h6M14 20h-6M12 4l-2 16" strokeLinecap="round" strokeWidth="2"/>
-              </svg>
-            </button>
-            
-            <button
-              onClick={() => {
-                const textarea = textareaRef.current;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `- ${selectedText}` + 
-                  content.substring(end);
-                setContent(newText);
-              }}
-              className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-              title="Bullet List"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <circle cx="6" cy="12" r="2" strokeLinecap="round" strokeWidth="2"/>
-                <path d="M12 12h8M12 8h8M12 16h8" strokeLinecap="round" strokeWidth="2"/>
-              </svg>
-            </button>
-            
-            <button
-              onClick={() => {
-                const textarea = textareaRef.current;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const selectedText = content.substring(start, end);
-                const newText = content.substring(0, start) + 
-                  `1. ${selectedText}` + 
-                  content.substring(end);
-                setContent(newText);
-              }}
-              className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-              title="Numbered List"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M6 4v4M4 4h4M6 12h2M14 12h8M14 8h8M14 16h8" strokeLinecap="round" strokeWidth="2"/>
-                <path d="M8 8v8M8 16H6" strokeLinecap="round" strokeWidth="2"/>
-              </svg>
-            </button>
+    <div className="min-h-screen bg-slate-50">
+      {/* Navbar */}
+      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-primary">Inkpad</h1>
 
-            <div className="w-px h-6 bg-gray-300 mx-1" />
-            
-            <button
-              onClick={() => {
-                const textarea = textareaRef.current;
-                const start = textarea.selectionStart;
-                const end = textarea.selectionEnd;
-                const newText = content.substring(0, start) + 
-                  "\n" + 
-                  content.substring(end);
-                setContent(newText);
-              }}
-              className="p-1.5 hover:bg-gray-200 rounded transition-colors"
-              title="Insert Line Break"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path d="M12 6v12m0 0l-3-3m3 3l3-3" strokeLinecap="round" strokeWidth="2"/>
-              </svg>
-            </button>
+            <p className="text-sm text-slate-500">Smart note management</p>
           </div>
-        )}
 
-        {/* Content Area */}
-        <div className="p-6">
-          {isEditing ? (
-            <textarea
-              ref={textareaRef}
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder={placeholder}
-              autoFocus={autoFocus}
-              className="w-full min-h-[300px] text-gray-700 leading-relaxed outline-none resize-none font-mono text-sm"
-              style={{ lineHeight: "1.6" }}
+          <div className="hidden md:flex items-center gap-4">
+            <Input
+              placeholder="Search notes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="w-72"
             />
-          ) : (
-            <div 
-              className="prose prose-sm max-w-none min-h-[300px] whitespace-pre-wrap break-words text-gray-700 leading-relaxed cursor-text"
-              onClick={handleEdit}
-              style={{ lineHeight: "1.6" }}
-            >
-              {content || (
-                <span className="text-gray-400 italic">{placeholder}</span>
-              )}
-            </div>
-          )}
-        </div>
 
-        {/* Footer with Stats and Actions */}
-        <div className="border-t border-gray-100 bg-gray-50 px-6 py-3 flex justify-between items-center text-xs text-gray-500">
-          <div className="flex gap-4">
-            <span>{wordCount} words</span>
-            <span>{charCount} characters</span>
-            {lastSaved && (
-              <span>Last saved: {formatDate(lastSaved)}</span>
-            )}
+            <Button>+ Add Note</Button>
           </div>
-          
-          <div className="flex gap-2">
-            {!readOnly && (
-              <>
-                {isEditing ? (
-                  <>
-                    <button
-                      onClick={handleSave}
-                      className="px-3 py-1 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-medium"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="px-3 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition-colors text-xs font-medium"
-                    >
-                      Cancel
-                    </button>
-                  </>
-                ) : (
-                  <button
-                    onClick={handleEdit}
-                    className="px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors text-xs font-medium"
-                  >
-                    Edit
-                  </button>
-                )}
-              </>
-            )}
-            
-            {onDelete && (
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                className="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors text-xs font-medium"
+        </div>
+      </header>
+
+      {/* Main Layout */}
+      <div className="max-w-7xl mx-auto flex">
+        {/* Sidebar */}
+        <aside className="hidden md:flex flex-col w-64 min-h-[calc(100vh-80px)] bg-white border-r border-slate-200 p-6">
+          <nav className="space-y-3">
+            <Link
+              to="/"
+              className="block px-4 py-3 rounded-xl bg-primary text-white font-medium"
+            >
+              All Notes
+            </Link>
+
+            <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
+              📌 Pinned
+            </button>
+
+            <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
+              🗂 Archived
+            </button>
+
+            <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
+              🏷 Tags
+            </button>
+          </nav>
+
+          <div className="mt-auto pt-6">
+            <Button variant="outline" fullWidth>
+              Logout
+            </Button>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-8">
+          {/* Mobile Actions */}
+          <div className="md:hidden mb-6 space-y-4">
+            <Input
+              placeholder="Search notes..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+
+            <Button fullWidth>+ Add Note</Button>
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-bold text-slate-800">My Notes</h2>
+
+              <p className="text-slate-500 mt-1">
+                Organize your thoughts and ideas
+              </p>
+            </div>
+
+            <div className="hidden md:block">
+              <Button variant="secondary">Filter</Button>
+            </div>
+          </div>
+
+          {/* Notes Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {notes.map((note) => (
+              <div
+                key={note.id}
+                className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
               >
-                Delete
-              </button>
-            )}
+                <div className="flex items-start justify-between mb-4">
+                  <h3 className="text-xl font-semibold text-slate-800">
+                    {note.title}
+                  </h3>
+
+                  {note.pinned && (
+                    <span className="text-primary text-lg">📌</span>
+                  )}
+                </div>
+
+                <p className="text-slate-600 leading-relaxed line-clamp-3">
+                  {note.content}
+                </p>
+
+                <div className="flex flex-wrap gap-2 mt-5">
+                  {note.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between mt-6">
+                  <button className="text-sm text-primary font-medium hover:underline">
+                    Read More
+                  </button>
+
+                  <div className="flex items-center gap-3">
+                    <button className="text-slate-500 hover:text-primary transition">
+                      ✏️
+                    </button>
+
+                    <button className="text-slate-500 hover:text-red-500 transition">
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
 
-      {/* Delete Confirmation Modal */}
-      <ConfirmModal
-        isOpen={showDeleteConfirm}
-        onClose={() => setShowDeleteConfirm(false)}
-        onConfirm={() => {
-          onDelete();
-          setShowDeleteConfirm(false);
-        }}
-        title="Delete Note"
-        message="Are you sure you want to delete this note? This action cannot be undone."
-        confirmText="Delete"
-        cancelText="Cancel"
-      />
-    </>
-  );
-};
+          {/* Empty State Example */}
+          {notes.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20">
+              <h2 className="text-2xl font-bold text-slate-700">
+                No Notes Found
+              </h2>
 
-// Multi-page Notepad (like a notebook with multiple pages)
-export const Notebook = ({ notes, onNoteChange, onNoteDelete, onNoteAdd }) => {
-  const [activeNoteId, setActiveNoteId] = useState(notes?.[0]?.id || null);
-  const activeNote = notes?.find(n => n.id === activeNoteId);
-
-  return (
-    <div className="flex gap-6 min-h-[600px] flex-col md:flex-row">
-      {/* Sidebar with note list */}
-      <div className="md:w-64 bg-white rounded-xl border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
-          <button
-            onClick={onNoteAdd}
-            className="w-full bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded-lg transition-colors text-sm font-medium"
-          >
-            + New Note
-          </button>
-        </div>
-        
-        <div className="divide-y divide-gray-100 max-h-[500px] overflow-y-auto">
-          {notes?.map((note) => (
-            <div
-              key={note.id}
-              onClick={() => setActiveNoteId(note.id)}
-              className={`p-3 cursor-pointer transition-colors hover:bg-gray-50 ${
-                activeNoteId === note.id ? "bg-red-50 border-l-4 border-red-600" : ""
-              }`}
-            >
-              <h3 className="font-medium text-gray-900 text-sm truncate">
-                {note.title || "Untitled"}
-              </h3>
-              <p className="text-xs text-gray-500 mt-1 truncate">
-                {note.content?.substring(0, 50) || "Empty note"}
+              <p className="text-slate-500 mt-2">
+                Create your first note to begin.
               </p>
-              <p className="text-xs text-gray-400 mt-1">
-                {new Date(note.updatedAt || note.createdAt).toLocaleDateString()}
-              </p>
-            </div>
-          ))}
-          
-          {(!notes || notes.length === 0) && (
-            <div className="p-4 text-center text-gray-400 text-sm">
-              No notes yet. Click "New Note" to get started.
             </div>
           )}
-        </div>
-      </div>
 
-      {/* Main editor area */}
-      <div className="flex-1">
-        {activeNote ? (
-          <Notepad
-            key={activeNote.id}
-            initialContent={activeNote.content}
-            onSave={(content) => onNoteChange(activeNote.id, content)}
-            onDelete={() => onNoteDelete(activeNote.id)}
-          />
-        ) : (
-          <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
-            <svg className="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" strokeLinecap="round" strokeWidth="2"/>
-            </svg>
-            <p className="text-gray-500">Select a note to edit or create a new one</p>
+          {/* Loader Example */}
+          <div className="mt-16 flex justify-center">
+            <Loader text="Loading more notes..." />
           </div>
-        )}
+        </main>
       </div>
     </div>
   );
-};
+}
 
-export default Notepad;
+function LoginPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-lg border border-slate-200">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-primary">Welcome Back</h1>
+
+          <p className="text-slate-500 mt-2">Login to continue</p>
+        </div>
+
+        <form className="space-y-5">
+          <Input label="Email" type="email" placeholder="Enter your email" />
+
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Enter your password"
+          />
+
+          <Button fullWidth size="lg">
+            Login
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-slate-500 mt-6">
+          Don’t have an account?
+          <Link to="/register" className="text-primary font-medium ml-1">
+            Register
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function RegisterPage() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-lg border border-slate-200">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-primary">Create Account</h1>
+
+          <p className="text-slate-500 mt-2">Start organizing your notes</p>
+        </div>
+
+        <form className="space-y-5">
+          <Input label="Full Name" placeholder="Enter your full name" />
+
+          <Input label="Email" type="email" placeholder="Enter your email" />
+
+          <Input
+            label="Password"
+            type="password"
+            placeholder="Create password"
+          />
+
+          <Button fullWidth size="lg">
+            Register
+          </Button>
+        </form>
+
+        <p className="text-center text-sm text-slate-500 mt-6">
+          Already have an account?
+          <Link to="/login" className="text-primary font-medium ml-1">
+            Login
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<DashboardPage />} />
+
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route path="/register" element={<RegisterPage />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;

@@ -1,4 +1,3 @@
-import React from "react";
 import PropTypes from "prop-types";
 
 function Button({
@@ -25,8 +24,7 @@ function Button({
     outline:
       "border border-slate-300 text-slate-700 hover:bg-slate-100 focus:ring-slate-300",
 
-    danger:
-      "bg-red-500 text-white hover:bg-red-600 focus:ring-red-400",
+    danger: "bg-red-500 text-white hover:bg-red-600 focus:ring-red-400",
   };
 
   const sizes = {
