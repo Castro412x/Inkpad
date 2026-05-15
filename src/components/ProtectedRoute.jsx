@@ -14,6 +14,7 @@ const ProtectedRoute = () => {
     );
   }
 
+  // This will redirect to login if no user exists
   return user ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
