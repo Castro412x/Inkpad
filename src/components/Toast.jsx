@@ -1,5 +1,6 @@
 // components/toast.jsx
 import { useEffect } from "react";
+import { useState } from "react";
 
 const Toast = ({ message, type = "success", onClose, duration = 3000 }) => {
   useEffect(() => {

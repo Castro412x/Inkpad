@@ -23,7 +23,7 @@ export default function Login() {
     try {
       await login(email.trim(), password);
       // Navigate to dashboard after successful login
-      navigate("/dashboard", { replace: true });
+      navigate("/", { replace: true });
     } catch (err) {
       setError(err.message || "Login failed. Invalid credentials.");
       console.error(err);
