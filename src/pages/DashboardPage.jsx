@@ -1,169 +1,153 @@
-import React from "react";
-import Button from "../components/Button";
-import Input from "../components/Input";
-import Loader from "../components/Loader";
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { getNotes, deleteNote, pinNote } from '../services/notes';
+import { useToast } from '../App';
+import { ConfirmModal } from '../components/Modal';
 
-function DashboardPage() {
-  const [search, setSearch] = React.useState("");
+export default function DashboardPage() {
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
+  const [activeTag, setActiveTag] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const debounceRef = useRef(null);
+  const navigate = useNavigate();
+  const toast = useToast();
 
-  const notes = [
-    {
-      id: 1,
-      title: "Sprint Planning",
-      content:
-        "Discussed frontend tasks, API integration, and deployment strategy.",
-      tags: ["Work", "Team"],
-      pinned: true,
-    },
+  const fetchNotes = (searchVal = '', tag = '') => {
+    setLoading(true);
+    setError('');
+    getNotes({ search: searchVal, tag })
+      .then((data) => setNotes(data.notes ?? data))
+      .catch((err) => setError(err.message || 'Failed to load notes.'))
+      .finally(() => setLoading(false));
+  };
 
-    {
-      id: 2,
-      title: "React Ideas",
-      content:
-        "Need to improve reusable components and optimize folder structure.",
-      tags: ["React", "Frontend"],
-      pinned: false,
-    },
+  useEffect(() => { fetchNotes(); }, []);
 
-    {
-      id: 3,
-      title: "Meeting Notes",
-      content:
-        "Prepare presentation slides and complete UI responsiveness testing.",
-      tags: ["Project"],
-      pinned: false,
-    },
-  ];
+  const handleSearch = (val) => {
+    setSearch(val);
+    clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => fetchNotes(val, activeTag), 400);
+  };
+
+  const handleTagClick = (tag) => {
+    const next = activeTag === tag ? '' : tag;
+    setActiveTag(next);
+    fetchNotes(search, next);
+  };
+
+  const handlePin = async (e, note) => {
+    e.stopPropagation();
+    try {
+      await pinNote(note._id, !note.pinned);
+      setNotes((prev) => prev.map((n) => n._id === note._id ? { ...n, pinned: !n.pinned } : n));
+      toast.success(note.pinned ? 'Note unpinned.' : 'Note pinned.');
+    } catch {
+      toast.error('Could not update pin.');
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await deleteNote(deleteTarget);
+      setNotes((prev) => prev.filter((n) => n._id !== deleteTarget));
+      toast.success('Note deleted.');
+    } catch {
+      toast.error('Could not delete note.');
+    } finally {
+      setDeleteTarget(null);
+    }
+  };
+
+  const allTags = [...new Set(notes.flatMap((n) => n.tags ?? []))];
+  const ordered = [...notes.filter((n) => n.pinned), ...notes.filter((n) => !n.pinned)];
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Navbar */}
+    <div className="max-w-5xl mx-auto px-4 py-8">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-semibold text-slate-800">My Notes</h1>
+        <button onClick={() => navigate('/notes/new')} className="bg-[#0E7C66] text-white text-sm px-4 py-2 rounded-lg hover:bg-[#0A5C4A] transition">
+          + New Note
+        </button>
+      </div>
 
-      {/* Main Layout */}
-      <div className="max-w-7xl mx-auto flex">
-        {/* Sidebar */}
-        <aside className="hidden md:flex flex-col w-64 min-h-[calc(100vh-80px)] bg-white border-r border-slate-200 p-6">
-          <nav className="space-y-3">
-            <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
-              📌 Pinned
+      <input
+        type="text"
+        value={search}
+        onChange={(e) => handleSearch(e.target.value)}
+        placeholder="Search notes..."
+        className="w-full border border-slate-200 rounded-lg px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-[#0E7C66] mb-4"
+      />
+
+      {allTags.length > 0 && (
+        <div className="flex flex-wrap gap-2 mb-6">
+          {allTags.map((tag) => (
+            <button key={tag} onClick={() => handleTagClick(tag)}
+              className={`text-xs px-3 py-1 rounded-full border transition ${activeTag === tag ? 'bg-[#0E7C66] text-white border-[#0E7C66]' : 'border-slate-300 text-slate-600 hover:border-[#0E7C66]'}`}>
+              {tag}
             </button>
+          ))}
+        </div>
+      )}
 
-            <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
-              🗂 Archived
-            </button>
+      {loading && (
+        <div className="flex justify-center py-20">
+          <div className="w-7 h-7 border-2 border-[#0E7C66] border-t-transparent rounded-full animate-spin" />
+        </div>
+      )}
 
-            <button className="w-full text-left px-4 py-3 rounded-xl hover:bg-slate-100 transition">
-              🏷 Tags
-            </button>
-          </nav>
+      {error && !loading && <div className="text-center py-20 text-red-500 text-sm">{error}</div>}
 
-          <div className="mt-auto pt-6">
-            <Button variant="outline" fullWidth>
-              Logout
-            </Button>
-          </div>
-        </aside>
+      {!loading && !error && ordered.length === 0 && (
+        <div className="text-center py-20 text-slate-400">
+          <p className="text-lg">No notes yet.</p>
+          <p className="text-sm mt-1">Click <span className="text-[#0E7C66]">+ New Note</span> to get started.</p>
+        </div>
+      )}
 
-        {/* Main Content */}
-        <main className="flex-1 p-4 md:p-8">
-          {/* Mobile Actions */}
-          <div className="md:hidden mb-6 space-y-4">
-            <Input
-              placeholder="Search notes..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-
-            <Button fullWidth>+ Add Note</Button>
-          </div>
-
-          {/* Header */}
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-3xl font-bold text-slate-800">My Notes</h2>
-
-              <p className="text-slate-500 mt-1">
-                Organize your thoughts and ideas
-              </p>
-            </div>
-
-            <div className="hidden md:block">
-              <Button variant="secondary">Filter</Button>
-            </div>
-          </div>
-
-          {/* Notes Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {notes.map((note) => (
-              <div
-                key={note.id}
-                className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
-              >
-                <div className="flex items-start justify-between mb-4">
-                  <h3 className="text-xl font-semibold text-slate-800">
-                    {note.title}
-                  </h3>
-
-                  {note.pinned && (
-                    <span className="text-primary text-lg">📌</span>
-                  )}
-                </div>
-
-                <p className="text-slate-600 leading-relaxed line-clamp-3">
-                  {note.content}
-                </p>
-
-                <div className="flex flex-wrap gap-2 mt-5">
-                  {note.tags.map((tag, index) => (
-                    <span
-                      key={index}
-                      className="px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-medium"
-                    >
-                      {tag}
-                    </span>
+      {!loading && !error && ordered.length > 0 && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {ordered.map((note) => (
+            <div key={note._id} onClick={() => navigate(`/notes/${note._id}`)}
+              className="bg-white border border-slate-200 rounded-xl p-4 cursor-pointer hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+              <div className="flex items-start justify-between mb-2">
+                <h3 className="font-medium text-slate-800 text-sm truncate flex-1">{note.title}</h3>
+                <button onClick={(e) => handlePin(e, note)} title={note.pinned ? 'Unpin' : 'Pin'}
+                  className={`ml-2 text-base shrink-0 ${note.pinned ? 'text-[#0E7C66]' : 'text-slate-300 hover:text-[#0E7C66]'}`}>
+                  📌
+                </button>
+              </div>
+              <p className="text-slate-500 text-xs leading-relaxed line-clamp-3 mb-3">{note.content}</p>
+              {note.tags?.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {note.tags.map((t) => (
+                    <span key={t} className="text-[10px] px-2 py-0.5 bg-teal-50 text-[#0E7C66] rounded-full border border-teal-100">{t}</span>
                   ))}
                 </div>
-
-                <div className="flex items-center justify-between mt-6">
-                  <button className="text-sm text-primary font-medium hover:underline">
-                    Read More
-                  </button>
-
-                  <div className="flex items-center gap-3">
-                    <button className="text-slate-500 hover:text-primary transition">
-                      ✏️
-                    </button>
-
-                    <button className="text-slate-500 hover:text-red-500 transition">
-                      🗑️
-                    </button>
-                  </div>
+              )}
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <span className="text-[10px] text-slate-400">{new Date(note.updatedAt).toLocaleDateString()}</span>
+                <div className="flex gap-3">
+                  <button onClick={(e) => { e.stopPropagation(); navigate(`/notes/${note._id}`); }} className="text-xs text-slate-400 hover:text-[#0E7C66] transition">Edit</button>
+                  <button onClick={(e) => { e.stopPropagation(); setDeleteTarget(note._id); }} className="text-xs text-slate-400 hover:text-red-500 transition">Delete</button>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Empty State Example */}
-          {notes.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-20">
-              <h2 className="text-2xl font-bold text-slate-700">
-                No Notes Found
-              </h2>
-
-              <p className="text-slate-500 mt-2">
-                Create your first note to begin.
-              </p>
             </div>
-          )}
+          ))}
+        </div>
+      )}
 
-          {/* Loader Example */}
-          <div className="mt-16 flex justify-center">
-            <Loader text="Loading more notes..." />
-          </div>
-        </main>
-      </div>
+      <ConfirmModal
+        isOpen={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={handleDelete}
+        title="Delete Note"
+        message="This note will be permanently deleted. Are you sure?"
+        confirmText="Delete"
+        cancelText="Cancel"
+      />
     </div>
   );
 }
-
-export default DashboardPage;
